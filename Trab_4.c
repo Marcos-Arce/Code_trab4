@@ -13,47 +13,46 @@ void clear_screen()
 
 int clear()
 {
-    int y = 1;
+    int check = 1;
     char x;
     x = getchar();
     while(x!='\n'){
         x = getchar();
-        y = 0;
+        check = 0;
     }
-    if(!y){
+    if(!check){
         printf("Digite uma opcao valida\n\n");
     }
-    return y;
+    return check;
 }
 
 char choose_baralho()
 {
     char x;
-    int y = 0;
+    int check = 0;
 
-    clear_screen();
-    while(!y){
+    while(!check){
         printf("Como deseja iniciar o baralho?\n");
         printf("Aleatoriamente -> A\n");
         printf("Por arquivo    -> B\n");
         x = getchar();
-        y = clear();
+        check = clear();
     }
     return x;
 }
 
 int check_int(int down_limit, int up_limit, int val)
 {
-    int y = 0;
+    int check = 0;
 
-    y = clear();
-    if(!y);
+    check = clear();
+    if(!check);
     else if(val < down_limit || val > up_limit){
         printf("Digite um numero valido\n\n");
-        y = 0;
-    }else y = 1;
+        check = 0;
+    }else check = 1;
 
-    return y;
+    return check;
 }
 
 void init_baralho_randon(struct carta *p)
@@ -80,7 +79,7 @@ void init_baralho_randon(struct carta *p)
         }
     }
     // for(i = 0; i<104; i++){
-    //     printf("valor: %c   naipe: %c\n", sort[i].val, sort[i].cor);
+    //     printf("%c%c\n", sort[i].val, sort[i].cor);
     // }
     sort[104].val = 'E';    sort[104].cor = '*';
     sort[105].val = 'E';    sort[104].cor = '*';
@@ -93,17 +92,58 @@ void init_baralho_randon(struct carta *p)
             i++;
         }
     }
+    free(sort);
+}
+
+void init_baralho_txt(struct carta *p)
+{
+    int i;
+    char nome[60];
+    FILE *fp = NULL;
+
+    while(!fp){
+        printf("Digite o nome do arquivo que deseja abrir:\n");
+        fgets(nome, 59, stdin);
+        for(i=0; nome[i] != '\0'; i++) if(nome[i] == '\n') nome[i] = '\0';
+        fp = fopen(nome, "rt");
+        if(!fp){
+            printf("Crie o arquivo primeiro\n\n");
+            printf("Digite qualquer tecla para continuar...\n");
+            getc(stdin);
+        }
+    }
+    i=0;
+    while(!( i > 105|| feof(fp))){
+        p[i].val = getc(fp);
+        if(p[i].val == 'E'){
+            p[i].cor = getc(fp);
+        }else p[i].cor = getc(fp);
+        getc(fp);
+        printf("VALor %c Naipe: %c\n", p[i].val, p[i].cor);
+        printf("Valor de i: %d\n", i);
+        i++;
+    }
+    i-=1;
+    if(i != 105){
+        printf("Valor de i: %d\n", i);
+        printf("Adicione o numero corrreto de cartas\n\n");
+        exit(1);
+    }
+    fclose(fp);
+    for(i=0; i<106; i++){
+        printf("Valor: %c naipe: %c\n", p[i].val, p[i].cor);
+    }
 }
 
 int jog()
 {
-    int y = 0;
+    int check = 0;
     int n_jog;
 
-    while(!y){
-        printf("Digite a n_jogidade de jogadores que irão jogar Rummikub:\n");
+    while(!check){
+        printf("Digite a quantidade de jogadores que irão jogar Rummikub:\n");
         scanf("%d", &n_jog);
-        y = check_int(1, 5, n_jog);
+        check = check_int(1, 5, n_jog);
     }
     return n_jog;
 }
@@ -136,12 +176,59 @@ struct carta* update_baralho(struct carta *p, int quant, int n_antigo)
     return tp;
 }
 
+int choose_player(struct carta *p, int n_jog, int repetidos[])
+{
+    int i;
+    int k;
+    int check;
+    int posi[n_jog];
+    int max = 0;
+    int aux;
+    int val;
+
+    for(i = 0; i<n_jog; i++){
+        check = 0;
+        while(!check){    
+            printf("Jogador %d, escolha uma carta do baralho: (de 0 ate 105)\n", repetidos[i]+1);
+            scanf("%d", &posi[i]);
+            check = check_int(0, 105, posi[i]);
+            for(k=0; k<i;k++){
+                if(posi[k] == posi[i]){
+                    printf("Digite uma carta do baralho que nao tenha sido utilizada\n");
+                    check = 0;
+                    break;
+                }
+            }
+        }
+        if(p[posi[i]].val >= '0' && p[posi[i]].val <= '9')  val = p[posi[i]].val - '0';
+        else if(p[posi[i]].val == 'E') val = 30;
+        else val = p[posi[i]].val - 'A' + 10; 
+        printf("Valor da carta: %d\n", val);
+        if(p[posi[i]].val > max) max = p[posi[i]].val;
+    }
+    aux = n_jog;
+    n_jog = 0;
+    for(i = 0; i < aux; i++){
+        if(p[posi[i]].val == max){
+            repetidos[n_jog] = i;
+            n_jog++;
+        }
+    }
+    if(n_jog == 1){
+        return repetidos[0];
+    }
+    printf("Valores repetidos dos jogadores:");
+    for(i = 0; i<n_jog; i++) printf(" %d ", repetidos[i]+1);
+    printf("\nEscolham as suas cartas novamente\n\n");
+    return choose_player(p, n_jog, repetidos);
+}
+
 int main(int argc, char const *argv[])
 {
     int n_jog;
     int i;
-    int k;
     int n = 106;
+    int first;
     char x;
     struct carta *p;
     struct carta **jogadores = NULL;
@@ -157,11 +244,21 @@ int main(int argc, char const *argv[])
         if(x == 'A' || x == 'a'){
             init_baralho_randon(p);
             break;
+        }else if(x == 'B' || x == 'b'){
+            init_baralho_txt(p);
+            break;
         }else printf("Digite uma opcao valida\n\n");
+        clear_screen();
     }while(1);
-
+    clear_screen();
     n_jog = jog();
-
+    int repetidos[n_jog];
+    if(n_jog > 1){
+    for(i=0; i<n_jog; i++) repetidos[i] = i;
+    first = choose_player(p,n_jog, repetidos);
+    }
+    first = 0;
+    printf("Primeiro jogador: %d\n", first + 1);
     jogadores = (struct carta **)malloc(sizeof(struct carta *)*n_jog);
     if(!jogadores){
         printf("Nao foi possivel alocar memoria suficiente\n\n");

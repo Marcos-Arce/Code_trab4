@@ -51,7 +51,7 @@ char choose_action()
         printf("Qual acao deseja realizar?\n");
         printf("Criar grupo de cartas                   -> A\n");
         printf("Adicionar cartas a grupos existentes    -> B\n");
-        printf("Transferir carta para outro grupo       -> C\n");
+        printf("Transferir carta de um grupo para outro -> C\n");
         printf("Dividir grupo                           -> D\n");
         printf("Salvar e sair                           -> E\n");
         printf("Sair e retirar uma carta do baralho     -> F\n");
@@ -613,6 +613,11 @@ int main(int argc, char const *argv[])
         first = choose_player(p,n_jog, repetidos);
     }
     int primeira_jogada[n_jog];
+    int flag_primeira_play[n_jog]; 
+    for(i=0; i<n_jog; i++){
+        primeira_jogada[i] = 0;
+        flag_primeira_play[i] = 0;
+    }
     quant_mao = (int *) malloc(n_jog * sizeof(int));
     if(!quant_mao){
         printf("Nao foi possivel alocar memoria suficiente\n\n");
@@ -659,6 +664,7 @@ int main(int argc, char const *argv[])
                     printf("|-------------------------------------------------|\n");
                     printf("|Grupo selecionado: %d     Carta selecionada: %c%c   |\n", select_grupo+1, player_copy[select_card].val_c, player_copy[select_card].cor);
                     printf("|-------------------------------------------------|\n");
+                    if(!flag_primeira_play[i]) primeira_jogada[i] += player_copy[select_card].val_n;
                     grupo_copy[select_grupo] = update_grupo_hand(grupo_copy[select_grupo], select_grupo, player_copy, select_card, quant_grupo_copy, 1);
                     player_copy = update_grupo_hand(player_copy, i,player[i],select_card, quant_mao_copy, -1);
                     buble_sort_carta(grupo_copy[select_grupo], quant_grupo_copy[select_grupo], 1);
@@ -727,7 +733,26 @@ int main(int argc, char const *argv[])
                     }
                 }
                 if(flag1) flag1 = flag2;
+                if(flag1 && !flag_primeira_play[i]){
+                    if(primeira_jogada[i] < 30){
+                        printf("A primeira jogada deve valer no minimo 30 pontos\n\n");
+                        flag1 = 0;
+                        primeira_jogada[i] = 0;
+                    }else flag_primeira_play[i] = 1;
+                }
                 if(flag1){
+                    if(!quant_mao_copy[i]){
+                        printf("O jogador %d venceu!!\n\n", i+1);
+                        free(player);
+                        free(player_copy);
+                        free(grupo);
+                        free(grupo_copy);
+                        free(quant_grupo);
+                        free(quant_grupo_copy);
+                        free(quant_mao);
+                        free(quant_mao_copy);
+                        return 0;
+                    }
                     free(player[i]);
                     player[i] = player_copy;
                     free(grupo);
@@ -739,7 +764,6 @@ int main(int argc, char const *argv[])
                     quant_mao = quant_mao_copy;
                 }
                 printf("\n\n");
-                getc(stdin);
             }else if(x == 'F' || x == 'f'){
                 free(quant_grupo_copy);
                 free(grupo_copy);
@@ -748,21 +772,43 @@ int main(int argc, char const *argv[])
                 show_hand(player, i, quant_mao[i]);
                 player_copy = update_grupo_hand(player[i], i,p,0, quant_mao, 1);
                 p = update_baralho(p,1,n_baralho);
-                n_baralho--;
                 player[i] = player_copy;
-                clear_screen();
-                printf("Turno do jogador: %d\n\n", i+1);
-                printf("    MESA:\n\n");
-                show_mesa(grupo, n_grupo, quant_grupo);
-                show_baralho(n_baralho);
-                printf("\nSua nova mao\n\n");
-                show_hand(player, i, quant_mao[i]);
+                if(n_baralho>0){
+                    n_baralho--;
+                    clear_screen();
+                    printf("Turno do jogador: %d\n\n", i+1);
+                    printf("    MESA:\n\n");
+                    show_mesa(grupo, n_grupo, quant_grupo);
+                    show_baralho(n_baralho);
+                    printf("\nSua nova mao\n\n");
+                    show_hand(player, i, quant_mao[i]);
+                    if(n_baralho == 0) first = i;
+                }else printf("Nao ha mais cartas no baralho. Essa e a ultima rodada.\nO jogo ira continuar ate o jogador %d\n", first + 1);
                 printf("\n\nAperte qualquer tecla para continuar...");
                 getc(stdin);
                 flag1 = 1;
             }else printf("Digite uma opcao valida\n\n");
         }
         i++;
+        if(i==first && n_baralho == 0){
+            int min = 0;
+            int sum;
+            printf("O(s) ganhador(es) eh(sao): ");
+            for(i=0; i<n_jog; i++){
+                sum = 0;
+                for(k=0; k<quant_mao[i]; k++){
+                    sum += player[i][k].val_n;
+                }
+                if(sum < min) min = sum;
+            }
+            for(i=0; i<n_jog; i++){
+                sum = 0;
+                for(k=0; k<quant_mao[i]; k++){
+                    sum += player[i][k].val_n;
+                }
+                if(sum == min) printf("%d ", i+1); 
+            }
+        }
         if(i==n_jog) i=0;
     }while(1);
 }

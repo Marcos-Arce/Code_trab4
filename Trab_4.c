@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 struct carta{
     char val_c;
@@ -77,13 +78,17 @@ int check_int(int down_limit, int up_limit, int val)
 
 void init_baralho_randon(struct carta *p)
 {
+    srand(time(NULL));
     int i;
     int k;
     int j;
     int posi;
     struct carta *sort;
     sort = (struct carta *)malloc(106*sizeof(struct carta));
-    
+    if(!sort){
+        printf("Nao foi possivel alocar memoria suficiente\n\n");
+        exit(1);
+    }
     for(i=0; i<2; i++){
         for(k=0; k<4; k++){
             for(j=1; j<14; j++){
@@ -385,7 +390,7 @@ struct carta **copy_info_grupos(struct carta **grupo,int n_grupo, int *quant_gru
     }
     for(i = 0; i<n_grupo; i++){
         grupo_copy[i] = (struct carta *)malloc(quant_grupo[i] * sizeof(struct carta));
-        if(!grupo_copy){
+        if(!grupo_copy[i]){
             printf("Nao foi possivel alocar memoria suficiente\n\n");
             exit (1);
         }
@@ -495,6 +500,7 @@ struct carta** remove_create_grupo(struct carta **grupo,int n_grupo,int *grupo_q
 {
     int i;
     int k;
+    int j;
     struct carta **grupo_copy;
 
     grupo_copy = (struct carta **)malloc((n_grupo + quant)*sizeof(struct carta *));
@@ -510,8 +516,11 @@ struct carta** remove_create_grupo(struct carta **grupo,int n_grupo,int *grupo_q
             printf("Nao foi possivel alocar memoria sufuciente\n\n");
             exit(1);
         }
-        grupo_copy[i] = grupo[k];
+        for(j=0; j<grupo_quant[k]; j++){
+            grupo_copy[i][j] = grupo[k][j];
+        }
     }
+    for(i=0; i<n_grupo; i++) free(grupo[i]);
     free(grupo);
     return grupo_copy;
 }

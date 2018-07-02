@@ -93,10 +93,8 @@ void init_baralho_randon(struct carta *p)
     for(i=0; i<2; i++){
         for(k=0; k<4; k++){
             for(j=1; j<14; j++){
-                //printf("Posicao: %d", j-1+13*k + i*52);
                 if(j<10) sort[j-1+13*k + i*52].val_c = j + '0';
                 else sort[j-1+13*k + i*52].val_c = j - 10 + 'A';
-                //printf("Valor de k: %d\n",k);
                 sort[j-1+13*k + i*52].val_n = j;
                 if(k == 0) sort[j-1+13*k + i*52].cor = '!';
                 else if(k == 1) sort[j-1+13*k + i*52].cor = '@';
@@ -105,16 +103,12 @@ void init_baralho_randon(struct carta *p)
             }
         }
     }
-    // for(i = 0; i<104; i++){
-    //     printf("%c%c\n", sort[i].val, sort[i].cor);
-    // }
     
     sort[104].val_c = '*';    sort[104].cor = '*';    sort[104].val_n = 20;
     sort[105].val_c = '*';    sort[105].cor = '*';    sort[105].val_n = 20;
     i = 0;
     while(i<106){
         posi = rand()%106;
-        //printf("posicao: %d\n", posi);
         if(!p[posi].val_n){
             p[posi] = sort[i];
             i++;
@@ -176,7 +170,7 @@ int jog()
     }
     return n_jog;
 }
-//int  *mao
+
 void val_hand(struct carta **player, struct carta *p, int n_jog, int *quant_mao)
 {
     int i;
@@ -250,7 +244,7 @@ int choose_player(struct carta *p, int n_jog, int repetidos[])
     printf("\nEscolham as suas cartas novamente\n\n");
     return choose_player(p, n_jog, repetidos);
 }
-//int *mao;
+
 void show_hand(struct carta **player, int i, int limit)
 {
     int k;
@@ -260,7 +254,7 @@ void show_hand(struct carta **player, int i, int limit)
     }
     printf("\n\n");
 }
-//int *mao_copy;
+
 void show_hand_copy(struct carta *player_copy, int limit)
 {
     int k;
@@ -281,7 +275,7 @@ void show_baralho(int n_baralho)
     printf("                                                                               ----\n");
     printf("\n\n");
 }
-//int *quant_grupo & quant_grupo_copy
+
 void show_mesa(struct carta **grupo, int n_grupo, int *limit)
 {
     int i;
@@ -291,7 +285,7 @@ void show_mesa(struct carta **grupo, int n_grupo, int *limit)
         if(i>0) printf("\n\n");
         printf("Grupo %d                                          ", i+1);
         for(k=0; k<limit[i]; k++){
-            if(!k%13) printf("\n| ");
+            if(!k%13) printf("\n");
             printf("%c%c ", grupo[i][k].val_c, grupo[i][k].cor);
         }
     }
@@ -342,7 +336,6 @@ void buble_sort_carta(struct carta *vector, int limit, int grupo_hand)
                     *aux = vector[i+1];
                     vector[i+1] = vector[limit -1];
                     vector[limit - 1] = *aux;
-                    //printf("%c%c  %c%c  %c%c %c%c\n", vector[0].val_c, vector[0].cor, vector[1].val_c, vector[1].cor, vector[2].val_c, vector[2].cor, vector[3].val_c, vector[3].cor);
                 }
             }
             for(k=i+2; k<limit; k++){
@@ -351,7 +344,6 @@ void buble_sort_carta(struct carta *vector, int limit, int grupo_hand)
                         *aux  = vector[j];
                         vector[j] = vector[j+1];
                         vector[j+1] = vector[j];
-                        //printf("%c%c  %c%c  %c%c %c%c\n", vector[0].val_c, vector[0].cor, vector[1].val_c, vector[1].cor, vector[2].val_c, vector[2].cor, vector[3].val_c, vector[3].cor);
                     }
                 }
             }
@@ -597,6 +589,7 @@ int main(int argc, char const *argv[])
     struct carta **grupo = NULL;
     struct carta **grupo_copy;
     
+
     p = (struct carta *)calloc(106,sizeof(struct carta));
     if(!p){
         printf("Nao foi possivel alocar memoria suficiente\n");
@@ -621,7 +614,7 @@ int main(int argc, char const *argv[])
         int repetidos[n_jog];
         for(i=0; i<n_jog; i++) repetidos[i] = i;
         first = choose_player(p,n_jog, repetidos);
-    }
+    }else clear_screen();
     int primeira_jogada[n_jog];
     int flag_primeira_play[n_jog]; 
     for(i=0; i<n_jog; i++){
@@ -662,10 +655,12 @@ int main(int argc, char const *argv[])
             show_info(grupo_copy, n_grupo_copy, n_baralho, player, i, player_copy,quant_grupo_copy, quant_mao_copy[i],0);
             x = choose_action();
             if(x == 'A' || x == 'a'){
+                clear_screen();
                 quant_grupo_copy = update_quant_grupo(quant_grupo_copy, n_grupo_copy, 1, 0);
                 grupo_copy = remove_create_grupo(grupo_copy, n_grupo_copy, quant_grupo_copy, 0, 1);
                 n_grupo_copy++;
             }else if(x == 'B' || x =='b'){
+                clear_screen();
                 if(n_grupo_copy > 0){
                     show_info(grupo_copy, n_grupo_copy, n_baralho, player, i, player_copy,quant_grupo_copy, quant_mao_copy[i],0);
                     select_grupo = ask_thing(n_grupo_copy, "Digite qual grupo deseja selecionar (1\0");
@@ -678,10 +673,7 @@ int main(int argc, char const *argv[])
                     grupo_copy[select_grupo] = update_grupo_hand(grupo_copy[select_grupo], select_grupo, player_copy, select_card, quant_grupo_copy, 1);
                     player_copy = update_grupo_hand(player_copy, i,player[i],select_card, quant_mao_copy, -1);
                     buble_sort_carta(grupo_copy[select_grupo], quant_grupo_copy[select_grupo], 1);
-                }else{
-                    clear_screen();
-                    printf("Crie um grupo primeiro\n\n");
-                }
+                }else printf("Crie um grupo primeiro\n\n");
             }else if(x =='C' || x == 'c'){
                 if(n_grupo_copy>1){
                     select_grupo_rem = ask_grupo_rem_mv(-1,n_grupo_copy, "removida\0", quant_grupo_copy);
@@ -690,20 +682,31 @@ int main(int argc, char const *argv[])
                     grupo_copy[select_grupo_mv] = update_grupo_hand(grupo_copy[select_grupo_mv], select_grupo_mv, grupo_copy[select_grupo_rem], select_card, quant_grupo_copy, 1);
                     grupo_copy[select_grupo_rem] = update_grupo_hand(grupo_copy[select_grupo_rem], select_grupo_rem, NULL,select_card, quant_grupo_copy, -1);
                     buble_sort_carta(grupo_copy[select_grupo_mv], quant_grupo_copy[select_grupo_mv], 1);
-                }else printf("Crie pelo menos dois grupos\n\n");
+                    clear_screen();
+                }else{
+                    clear_screen();
+                    printf("Crie pelo menos dois grupos\n\n");
+                }
             }else if(x == 'D' || x == 'd'){
+                clear_screen();
                 if(n_grupo_copy > 0){
                     select_grupo = ask_thing(n_grupo_copy, "Digite qual grupo sera dividido (1\0");
-                    select_card = ask_thing(quant_grupo_copy[select_grupo], "A partir de qual carta deseja dividir? (2\0");
-                    quant_grupo_copy = update_quant_grupo(quant_grupo_copy, n_grupo_copy, 1, 0);
-                    grupo_copy = remove_create_grupo(grupo_copy, n_grupo_copy, quant_grupo_copy, 0, 1);
-                    n_grupo_copy++;
-                    for(k=select_card; k<quant_grupo_copy[select_grupo];){
-                        grupo_copy[n_grupo_copy-1] = update_grupo_hand(grupo_copy[n_grupo_copy-1], n_grupo_copy-1, grupo_copy[select_grupo], select_card, quant_grupo_copy, 1);
-                        grupo_copy[select_grupo] = update_grupo_hand(grupo_copy[select_grupo], select_grupo, NULL, select_card, quant_grupo_copy, -1);
+                    if(quant_grupo_copy[select_grupo] >= 2){
+                        select_card = ask_thing(quant_grupo_copy[select_grupo], "A partir de qual carta deseja dividir? (2\0");
+                        quant_grupo_copy = update_quant_grupo(quant_grupo_copy, n_grupo_copy, 1, 0);
+                        grupo_copy = remove_create_grupo(grupo_copy, n_grupo_copy, quant_grupo_copy, 0, 1);
+                        n_grupo_copy++;
+                        for(k=select_card; k<quant_grupo_copy[select_grupo];){
+                            grupo_copy[n_grupo_copy-1] = update_grupo_hand(grupo_copy[n_grupo_copy-1], n_grupo_copy-1, grupo_copy[select_grupo], select_card, quant_grupo_copy, 1);
+                            grupo_copy[select_grupo] = update_grupo_hand(grupo_copy[select_grupo], select_grupo, NULL, select_card, quant_grupo_copy, -1);
+                        }
+                    }else{
+                        clear_screen();
+                        printf("Escolha um grupo com 2 cartas ou mais\n\n");
                     }
                 }else printf("Crie um grupo primeiro\n");
             }else if(x == 'E' || x == 'e'){
+                clear_screen();
                 flag1 = 1;
                 for(k=0; k<n_grupo_copy; k++){
                     if(quant_grupo_copy[k] == 0){
@@ -753,7 +756,7 @@ int main(int argc, char const *argv[])
                 }
                 if(flag1){
                     if(!quant_mao_copy[i]){
-                        printf("O jogador %d venceu!!\n\n", i+1);
+                        printf("\n\nO jogador %d venceu!!\n\n", i+1);
                         free(player);
                         free(player_copy);
                         free(grupo);
@@ -776,6 +779,7 @@ int main(int argc, char const *argv[])
                 }
                 printf("\n\n");
             }else if(x == 'F' || x == 'f' || x == 'G' || x == 'g'){
+                clear_screen();
                 free(quant_grupo_copy);
                 free(grupo_copy);
                 n_grupo_copy = 0;
@@ -798,11 +802,16 @@ int main(int argc, char const *argv[])
                     }else printf("Nao ha mais cartas no baralho. Essa e a ultima rodada.\nO jogo ira continuar ate o jogador %d\n", first + 1);
                     printf("\n\nAperte qualquer tecla para continuar...");
                     getc(stdin);
-                }else if(x!= 'F' && x != 'f') printf("Digite uma opcao valida\n\n");
+                    clear_screen();
+                }
+            }else{
+                clear_screen();
+                printf("Digite um opcao valida\n\n");
             }
         }
         if(x != 'F' && x != 'f') i++;
         if(i==first && n_baralho == 0){
+            clear_screen();
             int min = 0;
             int sum;
             printf("O(s) ganhador(es) eh(sao): ");

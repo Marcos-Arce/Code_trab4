@@ -589,7 +589,7 @@ int main(int argc, char const *argv[])
     struct carta **grupo = NULL;
     struct carta **grupo_copy;
     
-
+    
     p = (struct carta *)calloc(106,sizeof(struct carta));
     if(!p){
         printf("Nao foi possivel alocar memoria suficiente\n");

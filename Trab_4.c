@@ -13,6 +13,22 @@ void clear_screen()
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
 
+void initial_screen()
+{
+    printf("\n__________");                                                                                    
+    printf("\n|||_____\\\\\\");                                                                                   
+    printf("\n|||      \\\\\\                                                                                  |||");
+    printf("\n|||       |||                                                     |||  |||                    ||| ");
+    printf("\n|||       |||                   ___    ___         ___    ___          |||   //               |||_____ ");
+    printf("\n|||______///   |||    |||   || //_\\\\  //_\\\\    || //_\\\\  //_\\\\    |||  |||  //   |||    |||   ||//___\\\\");
+    printf("\n|||____////    |||    |||   ||//   \\\\//   \\\\   ||//   \\\\//   \\\\   |||  ||| //    |||    |||   ||/     \\\\");
+    printf("\n|||    \\\\\\     |||    |||   |||     ||    |||  |||     ||    |||  |||  |||\\\\\\    |||    |||   ||       ||");
+    printf("\n|||     \\\\\\    ||\\___/|||   |||     ||    |||  |||     ||    |||  |||  ||| \\\\\\   ||\\___/|||   ||\\_____//");
+    printf("\n|||      \\\\\\    \\\\___// \\\\  |||     ||    |||  |||     ||    |||  |||  |||  \\\\\\   \\\\___// \\\\  ||\\\\___//\n");
+    printf("\nDigite qualquer tecla para continuar...\n");
+    getc(stdin);
+}
+
 int clear()
 {
     int check = 1;
@@ -605,6 +621,7 @@ int main(int argc, char const *argv[])
         return 1;
     }
     clear_screen();
+    initial_screen();
     do{
         x = choose_baralho();
         if(x == 'A' || x == 'a'){

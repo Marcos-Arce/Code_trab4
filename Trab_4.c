@@ -55,7 +55,8 @@ char choose_action()
         printf("Transferir carta de um grupo para outro -> C\n");
         printf("Dividir grupo                           -> D\n");
         printf("Salvar e sair                           -> E\n");
-        printf("Sair e retirar uma carta do baralho     -> F\n");
+        printf("Resetar a mesa                          -> F\n");
+        printf("Sair e retirar uma carta do baralho     -> G\n");
         x = getchar();
         check = clear();
     }
@@ -688,6 +689,7 @@ int main(int argc, char const *argv[])
                     select_grupo_mv = ask_grupo_rem_mv(select_grupo_rem,n_grupo_copy, "inserida\0", quant_grupo_copy);
                     grupo_copy[select_grupo_mv] = update_grupo_hand(grupo_copy[select_grupo_mv], select_grupo_mv, grupo_copy[select_grupo_rem], select_card, quant_grupo_copy, 1);
                     grupo_copy[select_grupo_rem] = update_grupo_hand(grupo_copy[select_grupo_rem], select_grupo_rem, NULL,select_card, quant_grupo_copy, -1);
+                    buble_sort_carta(grupo_copy[select_grupo_mv], quant_grupo_copy[select_grupo_mv], 1);
                 }else printf("Crie pelo menos dois grupos\n\n");
             }else if(x == 'D' || x == 'd'){
                 if(n_grupo_copy > 0){
@@ -773,32 +775,33 @@ int main(int argc, char const *argv[])
                     quant_mao = quant_mao_copy;
                 }
                 printf("\n\n");
-            }else if(x == 'F' || x == 'f'){
+            }else if(x == 'F' || x == 'f' || x == 'G' || x == 'g'){
                 free(quant_grupo_copy);
                 free(grupo_copy);
                 n_grupo_copy = 0;
                 free(quant_mao_copy);
-                show_hand(player, i, quant_mao[i]);
-                player_copy = update_grupo_hand(player[i], i,p,0, quant_mao, 1);
-                p = update_baralho(p,1,n_baralho);
-                player[i] = player_copy;
-                if(n_baralho>0){
-                    n_baralho--;
-                    clear_screen();
-                    printf("Turno do jogador: %d\n\n", i+1);
-                    printf("    MESA:\n\n");
-                    show_mesa(grupo, n_grupo, quant_grupo);
-                    show_baralho(n_baralho);
-                    printf("\nSua nova mao\n\n");
-                    show_hand(player, i, quant_mao[i]);
-                    if(n_baralho == 0) first = i;
-                }else printf("Nao ha mais cartas no baralho. Essa e a ultima rodada.\nO jogo ira continuar ate o jogador %d\n", first + 1);
-                printf("\n\nAperte qualquer tecla para continuar...");
-                getc(stdin);
                 flag1 = 1;
-            }else printf("Digite uma opcao valida\n\n");
+                if(x == 'G' || x == 'g'){
+                    if(n_baralho>0){
+                        player[i] = player_copy;
+                        player_copy = update_grupo_hand(player[i], i,p,0, quant_mao, 1);
+                        p = update_baralho(p,1,n_baralho);
+                        n_baralho--;
+                        clear_screen();
+                        printf("Turno do jogador: %d\n\n", i+1);
+                        printf("    MESA:\n\n");
+                        show_mesa(grupo, n_grupo, quant_grupo);
+                        show_baralho(n_baralho);
+                        printf("\nSua nova mao\n\n");
+                        show_hand(player, i, quant_mao[i]);
+                        if(n_baralho == 0) first = i;
+                    }else printf("Nao ha mais cartas no baralho. Essa e a ultima rodada.\nO jogo ira continuar ate o jogador %d\n", first + 1);
+                    printf("\n\nAperte qualquer tecla para continuar...");
+                    getc(stdin);
+                }else if(x!= 'F' && x != 'f') printf("Digite uma opcao valida\n\n");
+            }
         }
-        i++;
+        if(x != 'F' && x != 'f') i++;
         if(i==first && n_baralho == 0){
             int min = 0;
             int sum;

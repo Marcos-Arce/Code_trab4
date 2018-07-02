@@ -781,10 +781,10 @@ int main(int argc, char const *argv[])
                 n_grupo_copy = 0;
                 free(quant_mao_copy);
                 flag1 = 1;
+                free(player_copy);
                 if(x == 'G' || x == 'g'){
                     if(n_baralho>0){
-                        player[i] = player_copy;
-                        player_copy = update_grupo_hand(player[i], i,p,0, quant_mao, 1);
+                        player[i] = update_grupo_hand(player[i], i,p,0, quant_mao, 1);
                         p = update_baralho(p,1,n_baralho);
                         n_baralho--;
                         clear_screen();

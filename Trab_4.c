@@ -350,6 +350,14 @@ void buble_sort_carta(struct carta *vector, int limit, int grupo_hand)
             flag--;
         }
     }
+    if(vector[limit-1].val_n == 20 && vector[limit-2].val_n == 13){
+        *aux = vector[limit - 1];
+        vector[limit - 1] = vector[limit-2];
+        for(i=limit-2; i>0; i--){
+            vector[i] = vector[i-1];
+        }
+        vector[0] = *aux;
+    }
     free(aux);
 }
 
@@ -661,19 +669,21 @@ int main(int argc, char const *argv[])
                 n_grupo_copy++;
             }else if(x == 'B' || x =='b'){
                 clear_screen();
-                if(n_grupo_copy > 0){
-                    show_info(grupo_copy, n_grupo_copy, n_baralho, player, i, player_copy,quant_grupo_copy, quant_mao_copy[i],0);
-                    select_grupo = ask_thing(n_grupo_copy, "Digite qual grupo deseja selecionar (1\0");
-                    select_card = ask_thing(quant_mao_copy[i], "Digite qual carta deseja selecionar (1\0");
-                    clear_screen();
-                    printf("|-------------------------------------------------|\n");
-                    printf("|Grupo selecionado: %d     Carta selecionada: %c%c   |\n", select_grupo+1, player_copy[select_card].val_c, player_copy[select_card].cor);
-                    printf("|-------------------------------------------------|\n");
-                    if(!flag_primeira_play[i]) primeira_jogada[i] += player_copy[select_card].val_n;
-                    grupo_copy[select_grupo] = update_grupo_hand(grupo_copy[select_grupo], select_grupo, player_copy, select_card, quant_grupo_copy, 1);
-                    player_copy = update_grupo_hand(player_copy, i,player[i],select_card, quant_mao_copy, -1);
-                    buble_sort_carta(grupo_copy[select_grupo], quant_grupo_copy[select_grupo], 1);
-                }else printf("Crie um grupo primeiro\n\n");
+                if(quant_mao_copy[i] > 0){
+                    if(n_grupo_copy > 0){
+                        show_info(grupo_copy, n_grupo_copy, n_baralho, player, i, player_copy,quant_grupo_copy, quant_mao_copy[i],0);
+                        select_grupo = ask_thing(n_grupo_copy, "Digite qual grupo deseja selecionar (1\0");
+                        select_card = ask_thing(quant_mao_copy[i], "Digite qual carta deseja selecionar (1\0");
+                        clear_screen();
+                        printf("|-------------------------------------------------|\n");
+                        printf("|Grupo selecionado: %d     Carta selecionada: %c%c   |\n", select_grupo+1, player_copy[select_card].val_c, player_copy[select_card].cor);
+                        printf("|-------------------------------------------------|\n");
+                        if(!flag_primeira_play[i]) primeira_jogada[i] += player_copy[select_card].val_n;
+                        grupo_copy[select_grupo] = update_grupo_hand(grupo_copy[select_grupo], select_grupo, player_copy, select_card, quant_grupo_copy, 1);
+                        player_copy = update_grupo_hand(player_copy, i,player[i],select_card, quant_mao_copy, -1);
+                        buble_sort_carta(grupo_copy[select_grupo], quant_grupo_copy[select_grupo], 1);
+                    }else printf("Crie um grupo primeiro\n\n");
+                }else printf("Nao ha mais cartas na mao\n\n");
             }else if(x =='C' || x == 'c'){
                 if(n_grupo_copy>1){
                     select_grupo_rem = ask_grupo_rem_mv(-1,n_grupo_copy, "removida\0", quant_grupo_copy);
@@ -682,6 +692,7 @@ int main(int argc, char const *argv[])
                     grupo_copy[select_grupo_mv] = update_grupo_hand(grupo_copy[select_grupo_mv], select_grupo_mv, grupo_copy[select_grupo_rem], select_card, quant_grupo_copy, 1);
                     grupo_copy[select_grupo_rem] = update_grupo_hand(grupo_copy[select_grupo_rem], select_grupo_rem, NULL,select_card, quant_grupo_copy, -1);
                     buble_sort_carta(grupo_copy[select_grupo_mv], quant_grupo_copy[select_grupo_mv], 1);
+                    buble_sort_carta(grupo_copy[select_grupo_rem], quant_grupo_copy[select_grupo_rem], 1);
                     clear_screen();
                 }else{
                     clear_screen();
@@ -723,7 +734,7 @@ int main(int argc, char const *argv[])
                 for(k=0; k<n_grupo_copy; k++){
                     if(quant_grupo_copy[k] < 3){
                         if(flag1) {
-                            printf("         ERROS PRESENTES NA MESA:\n\n");
+                            printf("         ERRO PRESENTE NA MESA:\n\n");
                             printf("O numero minimo de cartas em um grupo eh 3\n");
                             printf("Grupos com menos cartas: ");
                         }
@@ -731,12 +742,25 @@ int main(int argc, char const *argv[])
                         printf("%d ", k+1);
                     }
                 }
+                if(flag1){
+                    for(k=0; k<n_grupo_copy; k++){
+                        if(quant_grupo_copy[k]>13){
+                            if(flag1){
+                                printf("        ERRO PRESENTE NA MESA:\n\n");
+                                printf("O numero maximo de cartas em um grupo eh 13\n\n");
+                                printf("Grupos com mais cartas: ");
+                            }
+                            flag1 = 0;
+                            printf("%d ", k+1);
+                        }
+                    }
+                }
                 int flag2 = 1;
                 if(flag1){
                     for(k=0; k<n_grupo_copy; k++){
                         flag1 =  check_win(grupo_copy[k], quant_grupo_copy[k]);
                         if(!flag1 && flag2){
-                            printf("         ERROS PRESENTES NA MESA:\n\n");
+                            printf("         ERRO PRESENTE NA MESA:\n\n");
                             printf("So eh permitido grupos ou sequencias\n");
                             printf("Grupos errados: ");
                             flag2 = 0;
